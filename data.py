@@ -16,7 +16,7 @@ class Data:
 
     def __call__(self, _xaxis = "AdjOE", _yaxis = "AdjDE") -> None:
         """Calling the data frame as a callable object allows for creating a graph based on any axis in the main data set"""
-        labels = self._data["TeamName"]
+        labels = self._data.index.tolist()
         ranks = self._data["RankAdjEM"]
         x_vals = self._data[_xaxis]
         y_vals = self._data[_yaxis]
@@ -63,13 +63,13 @@ class Data:
         rebounding_factor_B = self.predict_rebounding_factor(teamB, teamA)
         turnover_factor_A = self.predict_turnover_factor(teamA, teamB)
         turnover_factor_B = self.predict_turnover_factor(teamB, teamA)
-        tempo = 2*max(teamA["Tempo"], teamB["Tempo"])
+        tempo = max(teamA["Tempo"], teamB["Tempo"])
         # NOTE: We add the shooting factor instead of multiplying because one FT = 1 pt (not 2). FTA is not included in FGM/eFG
-        expectation_A = 2 * (teamA["O-eFGPct"]/100) * shooting_factor_A * turnover_factor_A * rebounding_factor_A
-        # print(expectation_A)
-        expectation_B = 2 * (teamB["O-eFGPct"]/100) * shooting_factor_B * turnover_factor_B * rebounding_factor_B
-        # print(expectation_B)
-        return f"{teamNameA}: {expectation_A * tempo}\r\n{teamNameB}: {expectation_B * tempo}\r\n"
+        expectation_A = (2+shooting_factor_A) * tempo * (teamA["O-eFGPct"]/100) * turnover_factor_A * rebounding_factor_A
+        # print(f"{teamNameA}\t{shooting_factor_A}\t{turnover_factor_A}\t{rebounding_factor_A}\t{expectation_A}")
+        expectation_B = (2+shooting_factor_B) * tempo * (teamB["O-eFGPct"]/100) * turnover_factor_B * rebounding_factor_B
+        # print(f"{teamNameB}\t{shooting_factor_B}\t{turnover_factor_B}\t{rebounding_factor_B}\t{expectation_B}")
+        return f"{teamNameA}: {expectation_A}\r\n{teamNameB}: {expectation_B}\r\n"
 
     def predict_shooting_factor(self, teamA, teamB):
         team_A_offensive_efg = teamA["O-FTRate"] / 100
