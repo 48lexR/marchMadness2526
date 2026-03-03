@@ -1,7 +1,7 @@
 from data import Data
 
 def main():
-    data = Data("summary26.csv", _siz=50)
+    data = Data("./data/summary26.csv", _siz=50)
     print(f"Axis options")
     for s in data.getOptions(): print(s)
     xaxis=input("Input an axis:\n")
