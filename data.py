@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from math import *
+from sys import argv
 
 class Data:
     _data: pd.DataFrame
@@ -50,8 +51,10 @@ class Data:
         summary = pd.read_csv(self._fname)
         offense = pd.read_csv("./data/offense26.csv")
         defense = pd.read_csv("./data/defense26.csv")
+        misc = pd.read_csv("./data/misc26.csv")
         combined_data = pd.merge(offense, self._data, on="TeamName")
         combined_data = pd.merge(combined_data, defense, on="TeamName")
+        combined_data = pd.merge(combined_data, misc, on="TeamName")
         return combined_data.set_index("TeamName")
 
     def predict(self, teamNameA: str, teamNameB: str):
@@ -91,9 +94,25 @@ class Data:
 
     def getOptions(self) -> list[str]:
         return [i for i in self._data.columns]
+    
+    def make_histogram(self, stat: str):
+        d = self._data[stat]
+        bins = [i for i in range(floor(min(d)), ceil(max(d)))]
+        plt.hist(d, bins=bins)
+        plt.show()
 
 if __name__ == "__main__":
     d = Data()
-    teamA = input("Team A:\r\n")
-    teamB = input("Team B:\r\n")
-    print(d.predict(teamA, teamB))
+    method = ""
+    try:
+        method = argv[1]
+    except IndexError:
+        teamA = input("Team A:\r\n")
+        teamB = input("Team B:\r\n")
+        print(d.predict(teamA, teamB))
+
+    if method == "hist":
+        [print(o) for o in d.getOptions()]
+        stat = input("Input a stat:\r\n")
+        d.make_histogram(stat)
+

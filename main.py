@@ -1,7 +1,11 @@
 from data import Data
+from sys import argv
 
 def main():
-    data = Data("./data/summary26.csv", _siz=50)
+    try:
+        data = Data("./data/summary26.csv", int(argv[1]))
+    except IndexError:
+        data = Data("./data/summary26.csv")
     print(f"Axis options")
     for s in data.getOptions(): print(s)
     xaxis=input("Input an axis:\n")
