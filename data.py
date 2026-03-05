@@ -61,21 +61,21 @@ class Data:
         """Complicated formula to estimate the outcome as a probability of each possession"""
         teamA = self._data.loc[teamNameA]
         teamB = self._data.loc[teamNameB]
-        shooting_factor_A = self.predict_shooting_factor(teamA, teamB)
-        shooting_factor_B = self.predict_shooting_factor(teamB, teamA)
+        shooting_factor_A = teamA["O-FTRate"] * teamA["FTPct"] / (100**2)
+        shooting_factor_B = teamB["O-FTRate"] * teamB["FTPct"] / (100**2)
         rebounding_factor_A = self.predict_rebounding_factor(teamA, teamB)
         rebounding_factor_B = self.predict_rebounding_factor(teamB, teamA)
         turnover_factor_A = self.predict_turnover_factor(teamA, teamB)
         turnover_factor_B = self.predict_turnover_factor(teamB, teamA)
-        tempo = max(teamA["Tempo"], teamB["Tempo"]) 
+        tempo = max(teamA["AdjTempo"], teamB["AdjTempo"]) 
         # NOTE: We add the shooting factor instead of multiplying because one FT = 1 pt (not 2). FTA is not included in FGM/eFG
-        expectation_A = (2+shooting_factor_A) * tempo * (teamA["O-eFGPct"]/100) * turnover_factor_A * rebounding_factor_A
+        expectation_A = (2+ shooting_factor_A) * tempo * (teamA["O-eFGPct"]/100) * turnover_factor_A * rebounding_factor_A
         # variance_A = expectation_A ** 2 - (turnover_factor_A * rebounding_factor_A)**2 * (2 + shooting_factor_A) * (teamA["O-eFGPct"]/100)
         # print(f"{teamNameA}\t{shooting_factor_A}\t{turnover_factor_A}\t{rebounding_factor_A}\t{expectation_A}")
         expectation_B = (2+shooting_factor_B) * tempo * (teamB["O-eFGPct"]/100) * turnover_factor_B * rebounding_factor_B
         # variance_B = expectation_B ** 2 - (turnover_factor_B * rebounding_factor_B)**2 * tempo * (2 + shooting_factor_B) * (teamB["O-eFGPct"]/100)
         # print(f"{teamNameB}\t{shooting_factor_B}\t{turnover_factor_B}\t{rebounding_factor_B}\t{expectation_B}")
-        return f"{teamNameA}: {expectation_A}\r\n\r\n{teamNameB}: {expectation_B}\r\n"
+        return f"{teamNameA}: {expectation_A}\r\nSTDDEV: {expectation_A ** (1/2)}\r\n{teamNameB}: {expectation_B}\r\nSTDDEV: {expectation_B ** (1/2)}\r\n"
 
     def predict_shooting_factor(self, teamA, teamB):
         team_A_offensive_efg = teamA["O-FTRate"] / 100
