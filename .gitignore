@@ -3,6 +3,8 @@
 bin/*
 lib/*
 data/*
+__pycache__/*
+*.cfg
 include/*
 lib64
 share/*
