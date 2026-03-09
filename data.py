@@ -107,15 +107,32 @@ class Data:
         plt.hist(d, bins=bins)
         plt.show()
 
+    def model_two(self, teamNameA: str, teamNameB: str):
+        teamA = self._data.loc[teamNameA]
+        teamB = self._data.loc[teamNameB]
+        p_A_B = teamA["O-eFGPct"] / 100 + teamB["D-eFGPct"] / 100 - teamA["O-eFGPct"] * teamB["D-eFGPct"] / (100 ** 2)
+        p_B_A = teamB["O-eFGPct"] / 100 + teamA["D-eFGPct"] / 100 - teamB["O-eFGPct"] * teamA["D-eFGPct"] / (100 ** 2)
+        
+        e_A_B = (2 + teamA["O-FTRate"] * teamA["FTPct"] / 100 ** 2) * p_A_B
+        e_B_A = (2 + teamB["O-FTRate"] * teamB["FTPct"] / 100 ** 2) * p_B_A
+        tempo = max(teamA["AdjTempo"], teamB["AdjTempo"])
+        poss_A = tempo / 2 + tempo * (teamA["O-ORPct"] / 100 - teamB["D-ORPct"] / 100 + teamA["O-ORPct"] * teamB["D-ORPct"] / 100 ** 2)
+        poss_B = tempo / 2 + tempo * (teamB["O-ORPct"] / 100 - teamA["D-ORPct"] / 100 + teamB["O-ORPct"] * teamA["D-ORPct"] / 100 ** 2)
+        return f"{teamNameA}: {e_A_B * (poss_A)}\r\n{teamNameB}: {e_B_A * poss_B}"
+
 if __name__ == "__main__":
     d = Data()
     method = ""
     try:
+
         method = argv[1]
     except IndexError:
         teamA = input("Team A:\r\n")
         teamB = input("Team B:\r\n")
+        print("---\tModel A:\t---")
         print(d.predict(teamA, teamB))
+        print("---\tModel B:\t---")
+        print(d.model_two(teamA, teamB))
 
     if method == "hist":
         [print(o) for o in d.getOptions()]
