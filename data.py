@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 from math import *
 from sys import argv
@@ -22,7 +23,12 @@ class Data:
         ranks = self._data["RankAdjEM"]
         x_vals = self._data[_xaxis]
         y_vals = self._data[_yaxis]
+    
+        font = {'family' : 'serif',
+                'weight' : 'bold',
+                'size': 22}
 
+        matplotlib.rc('font', **font)
         if(self._siz != -1):
             labels = labels[:self._siz]
             ranks = ranks[:self._siz]
@@ -31,7 +37,7 @@ class Data:
 
         plt.xlabel(_xaxis)
         plt.ylabel(_yaxis)
-        plt.title("Offensive Efficiency (Adj) vs Defensive Efficiency (Adj) (KenPom Top 50)")
+        plt.title(f"{_xaxis} vs {_yaxis} (KenPom Top 50)")
         plt.scatter(x_vals, y_vals)
         ax = plt.gca()
 
