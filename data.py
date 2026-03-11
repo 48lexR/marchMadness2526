@@ -1,8 +1,10 @@
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-from math import *
+from numpy import *
+import math
 from sys import argv
+
 
 class Data:
     _data: pd.DataFrame
@@ -73,7 +75,7 @@ class Data:
         rebounding_factor_B = self.predict_rebounding_factor(teamB, teamA)
         turnover_factor_A = self.predict_turnover_factor(teamA, teamB)
         turnover_factor_B = self.predict_turnover_factor(teamB, teamA)
-        tempo = max(teamA["AdjTempo"], teamB["AdjTempo"]) 
+        tempo = max([teamA["AdjTempo"], teamB["AdjTempo"]]) 
         # NOTE: We add the shooting factor instead of multiplying because one FT = 1 pt (not 2). FTA is not included in FGM/eFG
         expectation_A = (2+ shooting_factor_A) * tempo * (teamA["O-eFGPct"]/100) * turnover_factor_A * rebounding_factor_A
         # variance_A = expectation_A ** 2 - (turnover_factor_A * rebounding_factor_A)**2 * (2 + shooting_factor_A) * (teamA["O-eFGPct"]/100)
@@ -103,7 +105,9 @@ class Data:
     
     def make_histogram(self, stat: str):
         d = self._data[stat]
-        bins = [i for i in range(floor(min(d)), ceil(max(d)))]
+        print(mean(d))
+        print(std(d))
+        bins = [i for i in range(math.floor(min(d)), math.ceil(max(d)))]
         plt.hist(d, bins=bins)
         plt.show()
 
@@ -115,7 +119,7 @@ class Data:
         
         e_A_B = (2 + teamA["O-FTRate"] * teamA["FTPct"] / 100 ** 2) * p_A_B
         e_B_A = (2 + teamB["O-FTRate"] * teamB["FTPct"] / 100 ** 2) * p_B_A
-        tempo = max(teamA["AdjTempo"], teamB["AdjTempo"])
+        tempo = max([teamA["AdjTempo"], teamB["AdjTempo"]])
         poss_A = tempo / 2 + tempo * (teamA["O-ORPct"] / 100 - teamB["D-ORPct"] / 100 + teamA["O-ORPct"] * teamB["D-ORPct"] / 100 ** 2)
         poss_B = tempo / 2 + tempo * (teamB["O-ORPct"] / 100 - teamA["D-ORPct"] / 100 + teamB["O-ORPct"] * teamA["D-ORPct"] / 100 ** 2)
         return f"{teamNameA}: {e_A_B * (poss_A)}\r\n{teamNameB}: {e_B_A * poss_B}"
